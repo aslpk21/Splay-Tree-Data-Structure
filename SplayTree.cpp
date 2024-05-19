@@ -71,27 +71,27 @@ Node* Splay(Node* root, int key) {
 
 // Insertion function 
 void Insert(Node*& root, int key) {
-    if (root == nullptr) {            // Initial case: make a node with KEY if the tree is empty
+    if (root == nullptr) {            
         root = newNode(key);
         return;
     }
 
-    root = Splay(root, key);          // First step: Bring the closest leaf node to root
+    root = Splay(root, key);          
 
-    if (root->key == key)             // If KEY is already present, return 
+    if (root->key == key)              
         return;
 
-    Node* Temp = newNode(key);        // Otherwise allocate new node for KEY as Temp
-    if (root->key > key) {            // If root->key is greater, make root as rightchild of Temp and copy root's leftchild to Temp
+    Node* Temp = newNode(key);        
+    if (root->key > key) {            
         Temp->right = root;
         Temp->left = root->left;
         root->left = nullptr;
-    } else {                          // If root->key is smaller, make root as leftchild of Temp and copy root's rightchild to Temp
+    } else {                          
         Temp->left = root;
         Temp->right = root->right;
         root->right = nullptr;
     }
-    root = Temp;                      // Finally, the KEY node becomes new root
+    root = Temp;                      
 }
 
 // Deletion function
