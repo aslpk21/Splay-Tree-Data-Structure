@@ -35,6 +35,10 @@ Node* leftRotate(Node* P) {
     return X;
 }
 
+// The functions from this line to line 126 were modified from Geeksforgeeks's program:
+// https://www.geeksforgeeks.org/insertion-in-splay-tree/
+
+
 // Splaying function
 Node* Splay(Node* root, int key) {
     if (root == nullptr || root->key == key)
@@ -121,7 +125,7 @@ bool search(Node*& root, int key) {
     return root && root->key == key;
 }
 
-// The functions from this line to line 298 are additional functions for displaying the tree.
+// The functions from this line to line 301 are additional functions for displaying the tree.
 // These functions were modified from Christopher Oicles's program from StackOverflow:
 // https://stackoverflow.com/posts/36810117/revisions
 
