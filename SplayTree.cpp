@@ -35,8 +35,7 @@ Node* leftRotate(Node* P) {
     return X;
 }
 
-// The functions from this line to line 126 were modified from Geeksforgeeks's program:
-// https://www.geeksforgeeks.org/insertion-in-splay-tree/
+
 
 
 // Splaying function
