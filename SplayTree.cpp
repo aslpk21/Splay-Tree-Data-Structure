@@ -315,7 +315,7 @@ int main() {
         cin >> option; 
         cout << "\n\n\n";
         if( option < 1 || option > 6){
-            cout << "Invalid option, pick again!\n\n";
+            cout << "Invalid option!\n\n";
             continue;
         }
         if (option == 1) {
@@ -336,7 +336,7 @@ int main() {
             cin >> x;
             cout << "\n\n\n";
             if (search(root, x)) {
-                cout << "Found! " << x << " is root right now" << "\n\n";
+                cout << "Found " << x << "\n\n";
             } else {
                 cout << "Key is not present in Tree!\n\n";
             }
