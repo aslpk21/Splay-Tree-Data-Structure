@@ -11,7 +11,6 @@ struct Node {
     Node *left, *right;
 };
 
-// Make a new node
 Node* newNode(int key) {
     Node* node = new Node();
     node->key = key;
@@ -19,7 +18,7 @@ Node* newNode(int key) {
     return node;
 }
 
-// Make a right rotation for X (the left child node of P)
+// Thực hiện quay phải X ( con trái của P )
 Node* rightRotate(Node* P) {
     Node* X = P->left;
     P->left = X->right;
@@ -27,7 +26,7 @@ Node* rightRotate(Node* P) {
     return X;
 }
 
-// Make a left rotation for X (the right child node of P)
+// Thực hiện quay trái X ( con phải của P )
 Node* leftRotate(Node* P) {
     Node* X = P->right;
     P->right = X->left;
@@ -36,43 +35,102 @@ Node* leftRotate(Node* P) {
 }
 
 
-
-
 // Splaying function
+/*
+Trường hợp cơ sở: Gốc là rỗng, return về root
+Bước 1: Splay khóa key, nếu key tồn tại, key trở thành gốc, nếu không nút gần key nhất sẽ trở thành gốc
+Bước 2: Kiểm tra nút gốc, nếu gốc là khóa key, không làm gì thêm
+Bước 3: Nếu key chưa tồn tại:
+- Nếu root.key > key:
+    - Nếu root.left == NULL, trả về root
+    - Nếu root.left.key > key (Zig-Zig - Left Left):
+        - Đệ quy gọi Splay trên con trái của con trái của root
+        - Quay phải root
+    - Nếu root.left.key < key (Zig-Zag - Left Right):
+        - Đệ quy gọi Splay trên con phải của con trái của root
+        - Nếu con phải của con trái không là NULL, quay trái con trái của root
+    - Nếu con trái của root là NULL, trả về root, nếu không quay phải root
+- Nếu root.key < key:
+    - Nếu root.right == NULL, trả về root
+    - Nếu root.right.key > key (Zig-Zag - Right Left):
+        - Đệ quy gọi Splay trên con trái của con phải của root
+        - Nếu con trái của con phải không là NULL, quay phải con phải của root
+    - Nếu root.right.key < key (Zig-Zig - Right Right):
+        - Đệ quy gọi Splay trên con phải của con phải của root
+        - Quay trái root
+    - Nếu con phải của root là NULL, trả về root, nếu không quay trái root
+*/
 Node* Splay(Node* root, int key) {
+    // Trường hợp cơ sở: root là NULL hoặc khóa của root bằng key thì trả về root
     if (root == nullptr || root->key == key)
         return root;
 
+    // Nếu khóa của root lớn hơn key
     if (root->key > key) {
+        // Nếu con trái của root là null, trả về root
         if (root->left == nullptr)
             return root;
+
+
+        //Zig-Zig Situation (Left Left)
         if (root->left->key > key) {
+            // Đệ quy gọi Splay trên con trái của con trái của root
             root->left->left = Splay(root->left->left, key);
+            // Thực hiện phép quay phải trên root
             root = rightRotate(root);
         }
+
+        // Zig-Zag Situation (Left Right)
         else if (root->left->key < key) {
+            // Đệ quy gọi Splay trên con phải của con trái của root
             root->left->right = Splay(root->left->right, key);
+            // Nếu con phải của con trái không là null, thực hiện phép quay trái trên con trái của root
             if (root->left->right != nullptr)
                 root->left = leftRotate(root->left);
         }
+        // Nếu con trái của root là null, trả về root, ngược lại thực hiện quay phải và trả về kết quả
         return (root->left == nullptr) ? root : rightRotate(root);
-    } else {
+        
+    } 
+
+    // Nếu khóa của root nhỏ hơn key
+    else {
+        // Nếu con phải của root là null, trả về root
         if (root->right == nullptr)
             return root;
+
+        // Zig-Zag Situation (Right Left)
         if (root->right->key > key) {
+            // Đệ quy gọi Splay trên con trái của con phải của root
             root->right->left = Splay(root->right->left, key);
+            // Nếu con trái của con phải không là null, thực hiện phép quay phải trên con phải của root
             if (root->right->left != nullptr)
                 root->right = rightRotate(root->right);
         }
+
+        // Zig-Zig Situation (Right Right)
         else if (root->right->key < key) {
+            // Đệ quy gọi Splay trên con phải của con phải của root
             root->right->right = Splay(root->right->right, key);
+            // Thực hiện phép quay trái trên root
             root = leftRotate(root);
         }
+        // Nếu con phải của root là null, trả về root, ngược lại thực hiện quay trái và trả về kết quả
         return (root->right == nullptr) ? root : leftRotate(root);
     }
 }
 
+
 // Insertion function 
+/*
+Trường hợp cơ sở: Gốc là rỗng, cấp phát 1 nút mới và return về nút đó
+Bước 1: Splay khóa key, nếu key tồn tại, key trở thành gốc, nếu không nút gần key nhất sẽ trở thành gốc
+Bước 2: Kiểm tra nút gốc, nếu gốc là khóa key, không làm gì thêm
+Bước 3: Nếu key chưa tồn tại: 
+- Tạo 1 nút mới với khóa key
+- Nếu key < root, gán root thành con phải của key, sao chép con trái của root làm con trái của key và gán con trái của root = NULL 
+- Nếu key > root, gán root thành con trái của key, sao chép con phải của root làm con phải của key và gán con phải của root = NULL 
+*/
 void Insert(Node*& root, int key) {
     if (root == nullptr) {            
         root = newNode(key);
@@ -97,7 +155,17 @@ void Insert(Node*& root, int key) {
     root = Temp;                      
 }
 
+
 // Deletion function
+/*
+Trường hợp cơ sở: Gốc là rỗng, return về nút gốc
+Bước 1: Splay khóa key, nếu key không tồn tại, Splay khóa có giá trị gần key nhất
+Bước 2: Kiểm tra nút gốc, nếu nút gốc != key, return về nút gốc vì key không tồn tại
+Bước 3: 
+- Chia cây thành 2 cây Tree1 và Tree2 ứng với cây con bên trái và cây con bên phải của nút gốc
+- Nếu Root1 = NULL, return về Root2
+- Nếu Root1 != NULL, Splay nút lớn nhất của Tree1 và gán Root2 thành con phải của Root1 và return về Root1
+*/
 void Deletee(Node*& root, int key) {
     if (root == nullptr) return;
 
@@ -117,14 +185,16 @@ void Deletee(Node*& root, int key) {
     }
 }
 
+
 // Searching function
-// This function returns true if the key is found in the tree and moves it to the root.
+// Hàm này sẽ kiểm tra xem nút gốc có phải là key không, nếu có thì key được tìm thấy, return true và return false nếu ngược lại
 bool search(Node*& root, int key) {
     root = Splay(root, key);
     return root && root->key == key;
 }
 
-// The functions from this line to line 301 are additional functions for displaying the tree.
+
+// The functions from this line to line 370 are additional functions for displaying the tree.
 // These functions were modified from Christopher Oicles's program from StackOverflow:
 // https://stackoverflow.com/posts/36810117/revisions
 
